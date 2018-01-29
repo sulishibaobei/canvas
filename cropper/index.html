@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Cropper</title>
+
+  <!--基本样式-->
+ 
+  <link rel="stylesheet" href="cropper.css">
+  <style>
+    .fl{
+          float: left;
+    }
+    #picCon {
+        width: 580px;
+        height: 438px;
+        border-radius: 6px;
+        background-color: #fff;
+    }
+    #picCon .picDiv {
+        height: 432px;
+        padding: 8px 0;
+        border-top: 0 none;
+    }
+    /*3*/
+    #picCon .picDiv .picLeft {
+        width: 378px;
+        height: 432px;
+        float: left;
+        position: relative;
+    }
+    #picCon .picDiv .pic-upload {
+        width: 75px;
+        height: 30px;
+        margin-left: 20px;
+        margin-bottom: 15px;
+        margin-top: 10px;
+        overflow: hidden;
+        display: inline-block
+    }
+    #picCon .picDiv .picLeft .picContainer {
+        width: 338px;
+        height: 253px;
+        margin: 0 auto;
+        position: relative;
+        background-color: #ccc;
+        overflow: hidden;
+    }
+ 
+    #picCon .picDiv .picLeft .picContainer .jc-demo-box {
+        position: absolute;
+        margin: auto;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+    }
+    
+    /*1*/
+    #picCon .btn {
+        font-size: 12px;
+        line-height: 20px;
+        padding: 4px 12px;
+        border-radius: 2px;
+        background: #fff;
+        border: 1px solid #ddd;
+    }
+    
+     
+    /*4*/
+    #picCon .picDiv .picRight {
+        width: 202px;
+        height: 432px;
+        float: left;
+        text-align: center;
+    }
+    #picCon .picDiv .picRight p {
+        line-height: 30px;
+        margin-top: 10px;
+    }
+    .jc-demo-box img {
+        display: block;
+    }
+    .preview-container img {
+        width: 338px;
+        height: 250px;
+    }
+    #preview-pane .preview-container {
+        width: 103px;
+        height: 138px;
+        overflow: hidden;
+        border:1px solid #ddd !important;
+        margin: 0 auto;
+    }
+    #preview-pane .imgCon1 {
+        width: 180px; height: 252px;
+    }
+    
+  </style>
+</head>
+<body>
+<div id="picCon">
+    <div class="picDiv">
+        <div class="picLeft">
+            <div class="fl pic-upload">
+                <button id="uploadBtn" type="button" class="btn">上传图片</button>
+                <div id="queue" class="queue"></div>
+                <input id="file_upload" name="file_upload" type="file" accept="image/jpeg,image/jpg,image/png">
+                <input id="imageUrl" name="imageUrl" type="hidden" >
+            </div>
+            <div class="picContainer">
+                <div class="jc-demo-box">
+                    <img src="../timg.jpg" id="target">
+                </div>
+            </div>
+        </div>
+        <div class="picRight">
+            <div id="preview-pane" style="padding-top:55px;">
+                <div class="preview-container imgCon1">
+                    <img src="../timg.jpg" class="jcrop-preview" alt="Preview"   >
+                </div>
+            </div>
+            <p class="tuijianImg">预览</p>
+        </div>
+    </div>
+</div>
+        
+
+  <script src="../jquery.js"></script>
+  <script src="cropper.js"></script>
+  <script>
+    $(function () {
+        cutImage();
+     //点击上传图片
+    $("#uploadBtn").on('click',function(){
+        $("#file_upload").click();
+    })
+    $("#file_upload").on('change',function(){
+        if(this.files.length === 0){
+           $('#target').src = '';
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function (e) {
+             $('#target').attr('src', e.target.result); 
+             $('#target').cropper('destroy');
+             cutImage();
+        }
+     reader.readAsDataURL(this.files[0]);
+    })
+    });
+
+    function cutImage(){
+        var $previews = $('.preview-container');
+      $('#target').cropper({
+        viewMode: 1,
+        dragMode: 'move',
+        cropBox:[178,250],
+        restore: false,
+        guides: false,
+        highlight: false,
+        cropBoxMovable: false,
+        cropBoxResizable: false,
+        center:true,
+        ready:function(e){
+            var $clone = $(this).clone().removeClass('cropper-hidden');
+            $clone.css({
+              display: 'block',
+              width: '100%',
+              minWidth: 0,
+              minHeight: 0,
+              maxWidth: 'none',
+              maxHeight: 'none'
+            });
+
+            $previews.css({
+              width: '100%',
+              overflow: 'hidden'
+            }).html($clone);
+        },
+        crop: function (e) {
+            var imageData = $(this).cropper('getImageData');
+            var previewAspectRatio = e.width / e.height;
+            $previews.each(function () {
+              var $preview = $(this);
+              var previewWidth = $preview.width();
+              var previewHeight = $preview.height();
+              var imageScaledRatio = e.width / previewWidth;
+              var imageScaledRatio1 = e.height / previewHeight;
+              $preview.height(previewHeight).find('img').css({
+                width: imageData.naturalWidth / imageScaledRatio,
+               height: imageData.naturalHeight / imageScaledRatio1,
+               marginLeft: -e.x / imageScaledRatio,
+               marginTop: -e.y / imageScaledRatio1
+              });
+              
+            });
+          },
+        
+          
+
+      });
+    }
+  </script>
+</body>
+</html>
